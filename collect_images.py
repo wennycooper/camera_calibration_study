@@ -1,10 +1,15 @@
 import cv2
 import numpy as np
+import time
+import sys
 
-cap = cv2.VideoCapture('KH-004.avi')
+#cap = cv2.VideoCapture('/home/kkuei/KH_videos/KH-004.avi')
+cap = cv2.VideoCapture(sys.argv[1])
+
 
 if (cap.isOpened() == False):
   print("Error opening video stream")
+  exit
 
 imageIndex = 0
 while(cap.isOpened()):
@@ -14,7 +19,7 @@ while(cap.isOpened()):
     cv2.namedWindow('frame')
     cv2.imshow('frame', frame)
 
-    keyPress = cv2.waitKey(25) & 0xFF
+    keyPress = cv2.waitKey(100) & 0xFF
     if keyPress == ord('q'):
       break
 
