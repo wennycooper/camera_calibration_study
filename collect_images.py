@@ -29,6 +29,7 @@ while(cap.isOpened()):
       imageIndex = imageIndex + 1
 
   else:  # Break the loop
+    print(ret)
     break
     
 cap.release()
