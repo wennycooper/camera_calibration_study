@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import glob
-
+import codecs, json
 
 calibration_flags = cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC+cv2.fisheye.CALIB_CHECK_COND+cv2.fisheye.CALIB_FIX_SKEW
 
@@ -17,7 +17,7 @@ objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 
 # images = glob.glob('chessboard_*')
-images = glob.glob('vlc*')
+images = glob.glob('vlc*.png')
 
 for fname in images:
     img = cv2.imread(fname)
@@ -47,36 +47,20 @@ rvecs = [np.zeros((1, 1, 3), dtype=np.float64) for i in range(N_OK)]
 tvecs = [np.zeros((1, 1, 3), dtype=np.float64) for i in range(N_OK)]
 
 # get calibration parameters
-#ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None, flags=cv2.CALIB_RATIONAL_MODEL)
 ret, _, _, _, _ = cv2.fisheye.calibrate(objpoints, imgpoints, gray.shape[::-1], K, D, rvecs, tvecs, calibration_flags, (cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 30, 1e-6))
 
+# save calibration parameters
 
-# Undistortion
-for fname in images:
-    img = cv2.imread(fname)
-    h, w = img.shape[:2]       # (1080, 1920)
-    DIM = img.shape[:2][::-1]  # (1920, 1080)
-    #balance=0.0
+params = {
+    "K": K.tolist(),
+    "D": D.tolist()
+}
 
-    #dim1 = DIM
-    #dim2 = dim1
-    #dim3 = dim1
+file_path = "params.json"
+with open(file_path, 'w') as f:
+    json.dump(params, f, indent=2)
 
-    #scaled_K = K * dim1[0] / DIM[0]
-    #scaled_K[2][2] = 1.0
-
-    #new_K = cv2.fisheye.estimateNewCameraMatrixForUndistortRectify(scaled_K, D, dim2, np.eye(3), balance=balance) 
-
-    #newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
-    #dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
-    mapx,mapy = cv2.fisheye.initUndistortRectifyMap(K,D,np.eye(3),K,DIM,cv2.CV_16SC2)
-    dst = cv2.remap(img,mapx,mapy,interpolation=cv2.INTER_LINEAR,borderMode=cv2.BORDER_CONSTANT)
-
-    # crop the image
-    #x,y,w,h = roi
-    #print roi
-    #dst = dst[y:y+h, x:x+w]
-    cv2.imwrite(fname + "_result.jpg", dst)
+print("Successfully output to the file: params.json !")
 
 
 # Re-projection Error
