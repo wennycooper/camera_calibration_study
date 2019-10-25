@@ -4,7 +4,7 @@ import glob
 import codecs, json
 
 # images = glob.glob('chessboard_*')
-images = glob.glob('vlc*')
+images = glob.glob('vlc*.png')
 
 
 # load calibration parameters
@@ -23,9 +23,10 @@ for fname in images:
 
     mapx,mapy = cv2.fisheye.initUndistortRectifyMap(K,D,np.eye(3),K,DIM,cv2.CV_16SC2)
     dst = cv2.remap(img,mapx,mapy,interpolation=cv2.INTER_LINEAR,borderMode=cv2.BORDER_CONSTANT)
-
     cv2.imwrite(fname + "_result.jpg", dst)
 
+    cv2.imshow("img", dst)
+    cv2.waitKey(1000)
 
 # Re-projection Error
 #mean_error = 0
